@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>لا تضغط على الزر</title>
+  <title>تحدي الفضول</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -29,50 +29,40 @@
       box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4);
     }
     .btn:active { transform: scale(0.95); }
-    .result-box {
+    .msg-box {
       margin-top: 30px;
-      font-size: 1.5rem;
       background: #2ed573;
       color: #000;
-      padding: 15px 30px;
-      border-radius: 12px;
-      display: none;
+      padding: 18px 36px;
+      border-radius: 15px;
+      font-size: 1.8rem;
       font-weight: bold;
+      display: none;
+      box-shadow: 0 8px 25px rgba(46, 213, 115, 0.4);
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
   <h1>🚫 لا تضغط على الزر!</h1>
-  <button class="btn" onclick="registerClick()">اضغط هنا</button>
+  <button class="btn" id="clickBtn" onclick="registerClick()">اضغط هنا</button>
 
-  <div id="resultBox" class="result-box">
-    عدد الملقوفين: <span id="counter">1</span> شخص 🥳
+  <div id="msgBox" class="msg-box">
+    مبروك أنت ملقوف 🥳
   </div>
 
   <script>
-    const webhookUrl = "https://hook.eu1.make.com/pqj1t8shf8p5kmof5j10uncr3rl6jvdv";
+    const SUPABASE_URL = "https://tnjcafzqrirlaaxropsw.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_RnRzCqjzYowBpCdRBx8QRQ_rezG5DKG";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function registerClick() {
-      // 1. زيادة العداد على الشاشة فورا
-      const resultBox = document.getElementById("resultBox");
-      const counterText = document.getElementById("counter");
-
-      let currentCount = parseInt(localStorage.getItem("malgouf_count") || "0") + 1;
-      localStorage.setItem("malgouf_count", currentCount);
+    async function registerClick() {
+      document.getElementById("msgBox").style.display = "block";
+      document.getElementById("clickBtn").disabled = true;
       
-      counterText.innerText = currentCount;
-      resultBox.style.display = "block";
-
-      // 2. إرسال الطلب لـ Make.com بآلية تضمن العبور (no-cors)
-      fetch(webhookUrl + "?event=malgouf_click&count=" + currentCount, {
-        method: "GET",
-        mode: "no-cors"
-      }).then(() => {
-        console.log("تم الإرسال لـ Make بنجاح!");
-      }).catch(err => {
-        console.error("خطأ:", err);
-      });
+      // تسديد الضغطة بالخلفية بدون أي تحويل أو نقل
+      await _supabase.from("clicks").insert([{}]);
     }
   </script>
 
