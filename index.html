@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تحدي الفضول</title>
+  <title>لا تضغط على الزر</title>
   <style>
     body {
       font-family: system-ui, sans-serif;
@@ -47,39 +47,32 @@
   <button class="btn" onclick="registerClick()">اضغط هنا</button>
 
   <div id="resultBox" class="result-box">
-    عدد الملقوفين: <span id="counter">...</span> شخص 🥳
+    عدد الملقوفين: <span id="counter">1</span> شخص 🥳
   </div>
 
   <script>
-    const makeWebhookUrl = "https://hook.eu1.make.com/pqj1t8shf8p5kmof5j10uncr3rl6jvdv";
+    const webhookUrl = "https://hook.eu1.make.com/pqj1t8shf8p5kmof5j10uncr3rl6jvdv";
 
-    async function registerClick() {
+    function registerClick() {
+      // 1. زيادة العداد على الشاشة فورا
       const resultBox = document.getElementById("resultBox");
       const counterText = document.getElementById("counter");
 
-      // زيادة وحفظ العدد في المتصفح
-      let count = localStorage.getItem("malgouf_count") || 0;
-      count = parseInt(count) + 1;
-      localStorage.setItem("malgouf_count", count);
-
-      // إظهار النتيجة فوراً
-      counterText.innerText = count;
+      let currentCount = parseInt(localStorage.getItem("malgouf_count") || "0") + 1;
+      localStorage.setItem("malgouf_count", currentCount);
+      
+      counterText.innerText = currentCount;
       resultBox.style.display = "block";
 
-      // إرسال البيانات للـ Webhook في Make.com
-      try {
-        fetch(makeWebhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "شخص ملقوف ضغط الزر!",
-            total_clicks: count,
-            time: new Date().toLocaleString("ar-DZ")
-          })
-        });
-      } catch (err) {
-        console.error("فشل الإرسال للـ API", err);
-      }
+      // 2. إرسال الطلب لـ Make.com بآلية تضمن العبور (no-cors)
+      fetch(webhookUrl + "?event=malgouf_click&count=" + currentCount, {
+        method: "GET",
+        mode: "no-cors"
+      }).then(() => {
+        console.log("تم الإرسال لـ Make بنجاح!");
+      }).catch(err => {
+        console.error("خطأ:", err);
+      });
     }
   </script>
 
